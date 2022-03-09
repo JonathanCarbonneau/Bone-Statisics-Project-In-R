@@ -1,0 +1,516 @@
+---
+title: "Statistics Final"
+author: "Jonathan Carbonneau"
+date: "12/16/2021"
+output:
+  html_document: default
+  word_document: default
+  pdf_document: default
+editor_options:
+  markdown:
+    wrap: 200
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(fig.height = 6, fig.width = 10)
+```
+
+
+I pledge my honor that I have abided by the Stevens Honor System
+
+**Executive Summary**
+
+Bones are continually being renewed by two processes bone formation, and bone resorption, old bone is removed. If one or both of these processes are inhibited, by disease, aging, athophie, bone loss
+can be the result. This study centers on the relationship between bone formation and bone resorption. The data given,a model was created predicting bone formation and bone resorption, and illustrate
+the similarities between the data of bone formation and bone resorption, among other things. This report discusses my findings.
+
+**Data Set**
+
+For this study, data was provided for four variables; a measure of bone formation(VO+), a measure of bone resorption(VO-), a biomarker of bone formation (OC), a biomarker of bone resorption (TRAP).
+The logarithms of these variables were also calculated and represented as lVO+,lVO-,lOC, and lTRAP. 31 samples were collected for each of these variables in Biomark.xls.
+
+**Software**
+
+Analysis was performed entirely in RMarkdown.
+
+**Analysis**
+
+In question 11.36, four variables were compared VO+,VO-,OC, and TRAP and found that they all have positive correlation coefficients with each other. Notably, VO+ and VO- have the highest correlation
+coefficient at 0.896. This implys that bone formation and bone resorption are closely related. Question 11.37 asks us to perform regression analysis on the variables. When doing regression analysis on
+VO+ and OC we observe that the residual against OC is slightly curved. When doing regression analysis on VO+,OC, and TRAP, we can see that TRAP is measured with more precision than OC. Problem 11.38
+asks us to predict VO+ using the variables OC, TRAP, and VO-. Based on these results, the explanatory variable TRAP can be eleminated. For 11.39, the above analyses were performed again but this time
+on the logarithms of the data(lVO+,lVO-,lOC, and lTRAP). Correlation coefficients and regression analysis was performed on the logarithms of the data. The specific graphs can be found in the details
+of the study. In problem 11.40, VO+ became the explanatory variable to predict VO-.
+
+Using regression analysis on VO- versus OC and TRAP, I concluded that the coefficient OC is not significant, but the coefficient TRAP is. Using regression analysis on VO- versus OC, VO+, and TRAP, the
+coefficient OC is significant, and the coefficient TRAP is significant. Using regression analysis on VO- versus OC and VO+, It can be concluded that the coefficient VO+ is significant, but the
+coefficient OC is not. For the final problem 11.41, the analysis using logarithms was analyzed. Using regression analysis on LVO- versus LOC, It can be concluded that the coefficient LOC is
+significant. Using regression analysis on LVO- versus LOC and LTRAP, It can be infered that the coefficient LOC is not significant, but the coefficient LTRAP is. Using regression analysis on LVO-
+versus LOC, LVO+, and LTRAP, it can be concluded that the coefficient LOC and LVO+ are significant, and the coefficient LTRAP is not significant. Using regression analysis on LVO- versus LOC and LVO+,
+It can be concluded that the coefficient LVO+ is significant, and the coefficient LOC is not significant. It can be determined that bone resorption and bone formation are closely related, and depend
+on each other significantly. Both the logarithm values and the normal values reflect this conclusion.
+
+\
+
+```{r}
+
+voplus = c(1606,2240,2221,896,2545,878,1682,1100,1557,1251,985,1032,1126,1303,285,445,391,624,512,628,753,403,479,513,476,968,572,694,870,838,687)
+vominus = c(903,1761,1486,1116,2236,954,1251,918,1446,1065,496,874,960,1018,351,493,536,445,477,766,1028,634,572,254,407,934,857,980,722,924,701)
+oc = c(68.9,56.3,54.6,31.2,36.4,31.4,52.8,38.4,35.7,76.5,44.4,40.2,77.9,54.6,9.9,20.6,20,17.2,24.2,20.9,17.9,19.7,15.9,20.8,8.1,19.3,16.9,10.1,47.7,30.2,17.2)
+loc = c(4.233,4.031,4.000,3.440,3.595,3.447,3.967,3.648,3.575,4.337,3.793,3.694,4.355,4.000,2.293,3.025,2.996,2.845,3.186,3.040,2.885,2.981,2.766,3.035,2.092,2.960,2.827,2.313,3.865,3.408,2.845)
+trap = c(19.4,25.5,19.0,9.0,19.1,14.6,25.2,14.6,28.8,14.9,10.7,5.9,23.7,19.0,6.9,8.1,9.5,6.3,10.1,10.5,9.0,8.8,8.2,10.3,3.3,10.1,9.5,8.1,18.6,14.4,9.6)
+ltrap = c(2.965,3.239,2.944,2.197,2.950,2.681,3.227,2.681,3.360,2.701,2.370,1.775,3.165,2.944,1.932,2.092,2.251,1.841,2.313,2.351,2.197,2.175,2.104,2.332,1.194,2.313,2.251,2.092,2.923,2.667,2.262)
+lvoplus = c(7.382,7.714,7.706,6.798,7.842,6.778,7.428,7.003,7.351,7.132,6.893,6.939,7.026,7.172,5.652,6.098,5.969,6.436,6.238,6.443,6.624,5.999,6.172,6.240,6.165,6.875,6.349,6.542,6.768,6.731,6.532)
+lvominus = c(6.806,7.474,7.304,7.018,7.712,6.861,7.132,6.822,7.277,6.971,6.207,6.773,6.867,6.926,5.861,6.201,6.284,6.098,6.168,6.641,6.935,6.452,6.349,5.537,6.009,6.839,6.753,6.888,6.582,6.829,6.553)
+df <- data.frame(voplus, vominus, oc, loc, trap, ltrap,lvoplus,lvominus)
+```
+
+# 11.36
+
+#### (a) Using numerical and graphical summaries, describe the distribution of each of these variables.
+
+```{r}
+hist(voplus)
+```
+
+From the above histogram we observe that the distribution of the VOPLUS is skewed to right.
+
+```{r}
+hist(vominus)
+```
+
+From the above histogram we observe that the distribution of the VOMINUS is skewed to right, and it shows some unusual observations.
+
+```{r}
+hist(oc)
+```
+
+From the above histogram we observe that the distribution of the OC is Skewed to right.
+
+```{r}
+hist(trap)
+```
+
+From the above histogram we observe that the distribution of the TRAP is Skewed to right
+
+#### (b) Using numerical and graphical summaries, describe the relationship between each pair of variables.
+
+```{r}
+cor.test(voplus, vominus, method=c("pearson", "kendall", "spearman"))
+plot(voplus, vominus)
+```
+
+From the above output, the correlation coefficient between the variable VOPLUS and VOMINUS is 0.896 Therefore, there exists a positive correlation between two variables. From the above scatter plot we
+observe that there exist a positive relationship between the variables VOPLUS and VOMINUS and linear.
+
+```{r}
+cor.test(voplus, oc, method=c("pearson", "kendall", "spearman"))
+plot(voplus, oc)
+```
+
+From the above scatter plot we observe that there exist a positive relationship between the variables VOPLUS and OC. From the above output, the correlation coefficient between the variables VOPLUS and
+OC is 0.659
+
+```{r}
+cor.test(voplus, trap, method=c("pearson", "kendall", "spearman"))
+plot(voplus, trap)
+```
+
+From the above scatter plot we observe that there exists a positive relationship between the variables VOPLUS and TRAP. From the above output, the correlation coefficient between the variables VOPLUS
+and TRAP is 0.765 Therefore, there exists a positive correlation between two variables.
+
+```{r}
+cor.test(vominus, oc, method=c("pearson", "kendall", "spearman"))
+plot(vominus, oc)
+```
+
+From the above scatter plot we observe that there exists a weak positive relationship between the variables VOMINUS and OC.
+
+From the above output, the correlation coefficient between the variables VOMINUS and OC is 0.455 Therefore, there exists a positive correlation between two variables.
+
+```{r}
+cor.test(vominus, trap, method=c("pearson", "kendall", "spearman"))
+plot(vominus, trap)
+```
+
+From the above scatter plot we observe that there exists a positive relationship between the variables VOMINUS and TRAP.
+
+From the above output, the correlation coefficient between the variables VOMINUS and TRAP is 0.678 Therefore, there exists a positive correlation between two variables.
+
+```{r}
+cor.test(oc, trap, method=c("pearson", "kendall", "spearman"))
+plot(oc, trap)
+```
+
+From the above scatter plot we observe that there exists a positive relationship between the variables OC and TRAP. From the above output, the correlation coefficient between the variables VOMINUS and
+TRAP is 0.7298 Therefore, there exists a positive correlation between two variables.
+
+# 11.37
+
+#### (a) Since OC is a biomarker of bone formation, we start with a simple linear regression using OC as the explanatory variable. Run the regression and summarize the results. Be sure to include an analysis of the residuals.
+
+```{r}
+relation <- lm(voplus~oc)
+summary(relation)
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+```{r}
+plot(oc,resid(relation),col = "blue",main = "Residual vs OC")
+boxplot(residuals(relation),main='Residuals of voplus and oc')
+```
+
+From the above plot we observe that the residual against OC is slightly curved.
+
+#### (b) Because the processes of bone formation and bone resorption are highly related, it is possible that there is some information in the bone resorption variables that can tell us something about bone formation. Use a model with both OC and TRAP, the biomarker of bone resorption, to predict VO+. Summarize the results. In the context of this model, it appears that TRAP is a better predictor of bone formation, VO+, than the biomarker of bone formation, OC. Is this view consistent with the pattern of relationships that you described in the previous exercise? One possible explanation is that, although all these variables are highly related, TRAP is measured with more precision than OC.
+
+```{r}
+relation <- lm(voplus~oc+trap)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+using t-statistic and P-value above for oc we observe that the P-value is greater than the given level of significance 0.05, so we fail to reject the null hypothesis. Therefore we conclude that the
+coefficient is not significantly different.
+
+using t-statistic and P-value above for TRAP we observe that the P-value is less than the given level of significance 0.05, so we reject the null hypothesis. Therefore we conclude that the coefficient
+is significantly different. From the above results we observe that TRAP is measured with more precision than OC.
+
+the correlation coefficient between the variables VOPLUS and OC is shown below:
+
+```{r}
+cor.test(voplus, oc, method=c("pearson", "kendall", "spearman"))
+```
+
+the correlation coefficient between the variables VOPLUS and trap is shown below:
+
+```{r}
+cor.test(voplus, trap, method=c("pearson", "kendall", "spearman"))
+```
+
+# 11.38
+
+#### (a) Write out the statistical model for this analysis including all assumptions.
+
+The statistical model is Voplus = B0 + B1OC + B2Trap + B3Vominus + Ei assumptions
+
+Eis are independent N(O,𝜎) are random variables
+
+#### (b) Run the multiple regression to predict VO+ using OC, TRAP, and VO−. Summarize the results.
+
+```{r}
+relation <- lm(voplus~oc+trap+vominus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression model is voplus=-243+8.23oc+6.6Trap+0.975vominus+Ei From the regression output we observe that the P-values for the coefficients OC and VOMINUS is very small, so the variable are useful
+for the model and the P-value for the variable TRAP is large, so this variable is not important for the model.
+
+#### (c) Make a table giving the estimated regression coefficients, standard errors, and t statistics with P-values for this analysis and for the two that you ran in the previous exercise. Describe how the coefficients and the P-values differ for the three analyses.
+
+voplus\~oc
+
+```{r}
+relation <- lm(voplus~oc)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+voplus\~oc+trap
+
+```{r}
+relation <- lm(voplus~oc+trap)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+#### (d) Give the percent of variation in VO+ explained by each of the three models and the estimate of σ.Give a short summary.
+
+The result in part (b), the 88.4% of the variation in Voplus is explained by the model, and estimate of the 𝜎 is 207.836.
+
+The result in part (c), the 43.5% of the variation in Voplus is explained by the model, and estimate of the 𝜎 is 443.274
+
+The result in part (c), the 60.7% of the variation in Voplus is explained by the model, and estimate of the 𝜎 is 376.265.
+
+The results you found in part (b) suggest another model. Run that model, summarize the results,and compare them with the results in part (b).
+
+```{r}
+relation <- lm(voplus~oc+vominus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+From the result of part (b) and (e), the r- square values are approximately equal.
+
+# 11.39
+
+#### Predicting bone formation using transformed variables. Because the distributions of VO+, VO−, OC, and TRAP tend to be skewed, it is common to work with logarithms rather than the measured values. Using the questions in the previous three exercises as a guide, analyze the log data.
+
+```{r}
+summary(df)
+plot(df)
+```
+
+```{r}
+hist(lvominus)
+```
+
+From the above histogram we observe that the distribution of the LVOMINUS is skewed to left.
+
+```{r}
+hist(loc)
+```
+
+From the above histogram we observe that the distribution of the OC is Skewed to right.
+
+```{r}
+hist(ltrap)
+```
+
+From the above histogram we observe that the distribution of the TRAP is Approximately symmetric
+
+```{r}
+cor.test(lvoplus, lvominus, method=c("pearson", "kendall", "spearman"))
+plot(lvoplus, lvominus)
+```
+
+From the above scatter plot we observe that there exist a positive relationship between the variables LVOPLUS and LVOMINUS and linear. From the above output, the correlation coefficient between the
+variable LVOPLUS and LVOMINUS is 0.840 Therefore, there exists a strong positive correlation between two variables.
+
+```{r}
+cor.test(lvoplus, loc, method=c("pearson", "kendall", "spearman"))
+plot(lvoplus, loc)
+```
+
+From the above scatter plot we observe that there exists a positive relationship between the variables LVOPLUS and LOC is. From the above output, the correlation coefficient between the variables
+LVOPLUS and LOC is 0.774 Therefore, there exists a strong positive correlation between two variables.
+
+```{r}
+cor.test(lvoplus, trap, method=c("pearson", "kendall", "spearman"))
+plot(lvoplus, trap)
+```
+
+From the above output, the correlation coefficient between the variables LVOPLUS and LTRAP is 0.730 Therefore, there exists a positive correlation between two variables. From the above scatter plot we
+observe that there exists a positive relationship between the variables LVOPLUS and LTRAP.
+
+```{r}
+relation <- lm(lvoplus~loc)
+summary(relation)
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression equation for explanatory variable LOC and dependent variable LVOPLUS is shown below:
+
+```{r}
+relation <- lm(lvoplus~loc)
+summary(relation)
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression for explanatory variable LOC, LTRAP and dependent variable LVOPLUS is shown below:
+
+```{r}
+relation <- lm(lvoplus~loc+ltrap)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression for explanatory variable LOC, LTRAP, LVOMINUS and dependent variable LVOPLUS is shown below:
+
+```{r}
+relation <- lm(lvoplus~loc+ltrap+lvominus)
+summary(relation)
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+From the above results we observe that the R-squared value is maximum for the model lvoplus=0.872+0.392Loc+0.028Trap+0.673Lominus so it is best fit for the given data.
+
+# 11.40
+
+#### Predicting bone resorption. Refer to Exercises 11.36 to 11.38. Answer these questions with the roles of VO+ and VO− reversed; that is, run models to predict VO−, with VO+ as an explanatory variable. OC
+
+```{r}
+summary(oc)
+```
+
+TRAP
+
+```{r}
+summary(trap)
+```
+
+VOPLUS
+
+```{r}
+summary(voplus)
+```
+
+VOMINUS
+
+```{r}
+summary(vominus)
+```
+
+```{r}
+relation <- lm(vominus~oc)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+Here the P-value (\< 0.05) is very small; this indicates that the coefficient of "OC" is significant in the regression model.
+
+```{r}
+plot(oc,resid(relation),col = "blue",main = "Residual vs OC")
+boxplot(residuals(relation),main='Residuals of vominus and oc')
+```
+
+The residual plot does not any particular pattern.
+
+The regression for explanatory variable OC, TRAP and dependent variable VOMINUS is shown below:
+
+```{r}
+relation <- lm(vominus~oc+trap)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression for explanatory variable OC, TRAP, VOPLUS and dependent variable VOMINUS is shown below:
+
+```{r}
+relation <- lm(vominus~oc+trap+voplus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression equation for explanatory variable OC and VOPLUS and dependent variable VOMINUS is shown below:
+
+```{r}
+relation <- lm(vominus~oc+voplus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+# 11.41
+
+#### Predicting bone resorption using transformed variables. Refer to the previous exercise. Rerun using logs. loc
+
+```{r}
+summary(loc)
+```
+
+ltrap
+
+```{r}
+summary(ltrap)
+```
+
+lvoplus
+
+```{r}
+summary(lvoplus)
+```
+
+lvominus
+
+```{r}
+summary(lvominus)
+```
+
+```{r}
+relation <- lm(lvominus~loc)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+Here the P-value (\< 0.05) is very small; this indicates that the coefficient of "loc" is significant in the regression model.
+
+```{r}
+plot(loc,resid(relation),col = "blue",main = "Residual vs loc")
+boxplot(residuals(relation),main='Residuals of lvominus and loc')
+```
+
+The residual plot does not follow any particular pattern.
+
+The regression for explanatory variable loc, ltrap and dependent variable lvominus is shown below:
+
+```{r}
+relation <- lm(lvominus~loc+ltrap)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+The regression for explanatory variable loc, ltrap, lvoplus and dependent variable lvominus is shown below:
+
+```{r}
+relation <- lm(lvominus~loc+ltrap+lvoplus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+From the results we conclude that the coefficients LOC and LOPLUS are significant, but the coefficient LTRAP is not significant in the required regression model.
+
+The regression equation for explanatory variable loc and lvoplus and dependent variable lvominus is shown below:
+
+```{r}
+relation <- lm(lvominus~loc+lvoplus)
+summary(relation) 
+```
+
+```{r fig.height = 3, fig.width = 3.5}
+plot(relation)
+```
+
+From the results we conclude that the coefficient LOPLUS is significant, but the coefficient LOC is not significant in the required regression model.
